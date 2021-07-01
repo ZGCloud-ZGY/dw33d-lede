@@ -38,20 +38,11 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@main
-      
-    - name: Initialization workdir
-      env:
-        DEBIAN_FRONTEND: noninteractive
-      run: |
-        sudo timedatectl set-timezone "$TZ"
-        sudo mkdir -p /workdir
-        sudo chown $USER:$GROUPS /workdir
-        
+           
     - name: Link source code
       working-directory: /workdir
       run: |
-        df -hT $PWD
-        ln -sf /workdir/openwrt $GITHUB_WORKSPACE
+        ln -sf $GITHUB_WORKSPACE $GITHUB_WORKSPACE/openwrt
         
     - name: Load custom feeds
       run: |
