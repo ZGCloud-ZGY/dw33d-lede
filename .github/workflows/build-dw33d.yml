@@ -40,9 +40,8 @@ jobs:
       uses: actions/checkout@main
            
     - name: Link source code
-      working-directory: /workdir
       run: |
-        ln -sf $GITHUB_WORKSPACE $GITHUB_WORKSPACE/openwrt
+        ln -sf ../dw33d-lede $GITHUB_WORKSPACE/openwrt
         
     - name: Load custom feeds
       run: |
