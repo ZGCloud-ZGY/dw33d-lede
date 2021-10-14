@@ -42,11 +42,6 @@ jobs:
         ref: master
         fetch-depth: 0
 
-    - name: Cache
-      uses: klever1988/cachewrtbuild@main
-      with:
-        ccache: 'true'
-
     - name: Check replace status
       run: |
         echo "old:"
