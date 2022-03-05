@@ -71,7 +71,11 @@ jobs:
     - name: Compile the firmware
       id: compile
       run: |
-        tar -cf bin/targets/*/*/6.bin dl
+        mkdir bin
+        mkdir bin/targets
+        mkdir bin/targets/1
+        mkdir bin/targets/1/1
+        tar -cf bin/targets/1/1/6.bin dl
         echo "::set-output name=status::success"
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
