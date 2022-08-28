@@ -1,4 +1,4 @@
-name: Build lede's OpenWrt(DW33D)
+name: Verify lede's OpenWrt(DW33D)
 
 on:
   workflow_dispatch:
