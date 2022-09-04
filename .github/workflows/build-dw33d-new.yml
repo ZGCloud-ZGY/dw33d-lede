@@ -115,7 +115,7 @@ jobs:
       run: |
         echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
         touch release.txt
-        echo "FIRMWARE Download" > release.txt
+        echo "Release FIRMWARE Download" > release.txt
         echo "::set-output name=status::success"
 
     - name: Upload firmware to release
