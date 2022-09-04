@@ -19,9 +19,11 @@ env:
   TZ: Asia/Shanghai
 
 jobs:
-  init-env:
+  build:
     runs-on: ubuntu-latest
+    
     steps:
+
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -54,13 +56,11 @@ jobs:
         [ -e files ] && mv files files
         chmod +x $DIY_P2_SH
         ./$DIY_P2_SH
-  
-  Set-config:
-    runs-on: ubuntu-latest
-    steps:
+
     - name: SSH connection to Actions
       uses: mxschmitt/action-tmate@v3.11
       if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
+
 
     - name: Pack the CONFIG
       id: compile
