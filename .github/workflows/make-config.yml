@@ -14,23 +14,13 @@ permissions:
   contents: read
   
 jobs:
-  makeconfig:
+  Generate_CONFIG:
     permissions:
       contents: write
     runs-on: ubuntu-latest
     if: github.event.repository.owner.id == github.event.sender.id
     
     steps:
-            
-      - name: Load custom feeds
-        run: |
-            echo "test pass" >> .config
-          
-      - name: Deliver Config
-        uses: actions/upload-artifact@v2
-        with:
-          name: OpenWrt_Config
-          path: ./.config
           
       - name: Checkout
         uses: actions/checkout@v2
@@ -69,5 +59,10 @@ jobs:
       - name: SSH connection to Actions
         uses: mxschmitt/action-tmate@v3.11
         if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
-
+        
+      - name: Deliver Config
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenWrt_Config
+          path: ./.config
 
