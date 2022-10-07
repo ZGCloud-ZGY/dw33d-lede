@@ -21,7 +21,17 @@ jobs:
     if: github.event.repository.owner.id == github.event.sender.id
     
     steps:
-    
+            
+      - name: Load custom feeds
+        run: |
+            echo "test pass" >> .config
+          
+      - name: Deliver Config
+        uses: actions/upload-artifact@v2
+        with:
+          name: OpenWrt_Config
+          path: ./.config
+          
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -48,6 +58,7 @@ jobs:
         run: |
          ./scripts/feeds update -a
          ./scripts/feeds install -a
+         
       - name: Load custom configuration
         run: |
           sed -i 's/192.168.1.1/192.168.10.1/g' package/base-files/files/bin/config_generate
@@ -55,63 +66,8 @@ jobs:
           sed -i 's/OpenWrt/Internet/g' package/kernel/mac80211/files/lib/wifi/mac80211.sh
           sed -i 's/US/CN/g' package/kernel/mac80211/files/lib/wifi/mac80211.sh
 
-    - name: SSH connection to Actions
-      uses: mxschmitt/action-tmate@v3.11
-      if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
+      - name: SSH connection to Actions
+        uses: mxschmitt/action-tmate@v3.11
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.ssh }}
 
 
-    - name: Pack the CONFIG
-      id: compile
-      run: |
-        mkdir bin
-        mkdir bin/targets
-        mkdir bin/targets/1
-        mkdir bin/targets/1/1
-        tar -cf bin/targets/1/1/config.tar .config
-        echo "::set-output name=status::success"
-        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
-        [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
-        echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
-    - name: Check space usage
-      if: (!cancelled())
-      run: df -hT
-
-    - name: Upload bin directory
-      uses: actions/upload-artifact@main
-      if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
-      with:
-        name: OpenWrt_bin${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: bin
-
-    - name: Organize files
-      id: organize
-      if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-      run: |
-        cd bin/targets/*/*
-        rm -rf packages
-        echo "FIRMWARE=$PWD" >> $GITHUB_ENV
-        echo "::set-output name=status::success"
-    - name: Upload firmware directory
-      uses: actions/upload-artifact@main
-      if: steps.organize.outputs.status == 'success' && !cancelled()
-      with:
-        name: OpenWrt_firmware${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
-        path: ${{ env.FIRMWARE }}
-
-    - name: Generate release tag
-      id: tag
-      if: env.UPLOAD_RELEASE == 'true' && !cancelled()
-      run: |
-        echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
-        touch release.txt
-        echo "CONFIG Download" > release.txt
-        echo "::set-output name=status::success"
-    - name: Upload firmware to release
-      uses: softprops/action-gh-release@v1
-      if: steps.tag.outputs.status == 'success' && !cancelled()
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.tag.outputs.release_tag }}
-        body_path: release.txt
-        files: ${{ env.FIRMWARE }}/*
